@@ -1,7 +1,7 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/dbConnect';
 
-interface UserAttributes {
+export interface UserAttributes {
     id: number;
     account_id: number;
     name: string;
@@ -13,8 +13,9 @@ interface UserAttributes {
     selfie_path: string;
     subscription_links: boolean[];
 }
+export type UserCreationAttributes = Omit<UserAttributes, 'id'>;
 
-export class User extends Model<UserAttributes> implements UserAttributes {
+export class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
     public id!: number;
     public account_id!: number;
     public name!: string;
@@ -39,7 +40,7 @@ User.init(
             allowNull: false,
             unique: true,
             references: {
-                model: 'TelegramUsers',
+                model: 'TelegramUser',
                 key: 'telegram_id',
             },
             onUpdate: "CASCADE",
@@ -87,4 +88,3 @@ User.init(
         updatedAt: false,
     }
 );
-
