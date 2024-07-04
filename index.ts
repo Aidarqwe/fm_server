@@ -5,6 +5,7 @@ import connectDB from './db';
 import {syncModels} from "./src/models/modelSync";
 import router from "./src/routes/router";
 import errorMiddleware from "./src/middlewares/error-middleware";
+import * as tf from '@tensorflow/tfjs-node';
 
 const PORT = process.env.PORT || 8080;
 const app: Application = express();

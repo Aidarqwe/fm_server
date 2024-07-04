@@ -9,7 +9,7 @@ export interface UserAttributes {
     birthdate: Date;
     city: string;
     search_goal: string;
-    photo_path: string;
+    photo_path: string[];
     selfie_path: string;
     subscription_links: boolean[];
 }
@@ -23,7 +23,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> implemen
     public birthdate!: Date;
     public city!: string;
     public search_goal!: string;
-    public photo_path!: string;
+    public photo_path!: string[];
     public selfie_path!: string;
     public subscription_links!: boolean[];
 }
@@ -67,7 +67,7 @@ User.init(
             allowNull: false,
         },
         photo_path: {
-            type: DataTypes.STRING,
+            type: DataTypes.ARRAY(DataTypes.STRING),
             allowNull: false,
         },
         selfie_path: {

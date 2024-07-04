@@ -1,5 +1,10 @@
 import {Request, Response, NextFunction} from "express";
 import userService from "../services/user-service";
+import {deleteUploadedFile} from "../config/deleteUploadedFile";
+
+interface MulterFiles {
+    [fieldName: string]: Express.Multer.File[];
+}
 
 class UserController {
     async telegram_data(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -31,12 +36,10 @@ class UserController {
             });
 
             res.json({ telegramUser });
-            // return(res.json({ telegramUser }));   // parameter type void
         } catch (error) {
             next(error);
         }
     }
-
 
     async user_data(req: Request, res: Response, next: NextFunction): Promise<void>{
         const {
@@ -46,12 +49,14 @@ class UserController {
             birthdate,
             city,
             search_goal,
-            photo_path,
-            selfie_path,
             subscription_links
         } = req.body;
+        const files = req.files as MulterFiles;
 
         try {
+            const photoPaths = files['photo_path'].map((file: Express.Multer.File) => file.path);
+            const selfiePath = files['selfie_path'][0].path;
+
             const user = await userService.createUser({
                 account_id,
                 name,
@@ -59,14 +64,22 @@ class UserController {
                 birthdate,
                 city,
                 search_goal,
-                photo_path,
-                selfie_path,
-                subscription_links
+                photo_path: photoPaths,
+                selfie_path: selfiePath,
+                subscription_links: JSON.parse(subscription_links)
             });
 
             res.json({ user });
         } catch (error) {
             next(error);
+            if (files['photo_path']) {
+                for (const file of files['photo_path']) {
+                    deleteUploadedFile(file);
+                }
+            }
+            if (files['selfie_path'] && files['selfie_path'][0]) {
+                deleteUploadedFile(files['selfie_path'][0]);
+            }
         }
     }
 
@@ -103,6 +116,8 @@ class UserController {
     //         next(e);
     //     }
     // }
+
+
 }
 
 export default new UserController();
